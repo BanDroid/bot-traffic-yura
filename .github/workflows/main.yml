@@ -1,0 +1,31 @@
+on: push
+name: Deploy Bot
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOSTNAME }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.FTP_HOSTNAME }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            ./server stop
+            cd ~/app/python/bot/traffic-yura
+            rm -rf .venv
+            python3 -m venv .venv
+            source .venv/Scripts/activate
+            python3 -m pip install -r requirements.txt
+            ./server start &
