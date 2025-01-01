@@ -49,9 +49,7 @@ async def total_traffic(context):
             data = await response.json()
             result = "Total traffic semenjak awal data dibuat:\n\n"
             for i, traffic in enumerate(data["items"]):
-                result += (
-                    f"{str(i + 1)}. *{traffic['judul']}*\nViews: {traffic['views']}\n\n"
-                )
+                result += f"{str(i + 1)}. **{traffic['judul']}**\nViews: {traffic['views']}\n\n"
             await context.reply(result, mention_author=True)
             return
 
