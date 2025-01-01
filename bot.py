@@ -3,6 +3,7 @@ __import__("dotenv").load_dotenv()
 import discord
 from discord.ext import commands
 from requests import get
+import aiohttp
 from os import environ as env
 
 BOT_TOKEN = env.get("BOT_TOKEN")
@@ -26,11 +27,13 @@ async def on_ready():
 
 
 def is_viwers_channel(context):
-    return context.channel.id == "1322836855288234035"
+    return str(context.channel.id) == "1322836855288234035"
 
 
 @bot.command(name="total-traffic")
 async def total_traffic(context):
+    if not is_viwers_channel(context):
+        return
     params = {"skipTotal": 1, "sort": "-views", "fields": "id,judul,views"}
     res = get(f"{API_URL}/api/collections/daftar_pj/records", params=params)
     if not res.ok:
