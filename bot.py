@@ -33,17 +33,27 @@ def is_viwers_channel(context):
 @bot.command(name="total-traffic")
 async def total_traffic(context):
     if not is_viwers_channel(context):
+        await context.reply(
+            "Maap lur... gk boleh saya tampilin disini.", mention_author=False
+        )
         return
     params = {"skipTotal": 1, "sort": "-views", "fields": "id,judul,views"}
-    res = get(f"{API_URL}/api/collections/daftar_pj/records", params=params)
-    if not res.ok:
-        await context.send("Maaf lur, gagal ngambil data traffic, tehe...")
-        return
-    data = res.json()
-    result = "Total traffic semenjak awal data dibuat:\n\n"
-    for i, traffic in enumerate(data["items"]):
-        result += f"{str(i + 1)}. {traffic['judul']}\nViews: {traffic['views']}\n\n"
-    await context.send(result)
+    await context.send("Tunggu bentar yah...", mention_author=False)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{API_URL}/api/collections/daftar_pj/records", params=params
+        ) as response:
+            if not response.ok:
+                await context.send("Maaf lur, gagal ngambil data traffic, tehe...")
+                return
+            data = await response.json()
+            result = "Total traffic semenjak awal data dibuat:\n\n"
+            for i, traffic in enumerate(data["items"]):
+                result += (
+                    f"{str(i + 1)}. *{traffic['judul']}*\nViews: {traffic['views']}\n\n"
+                )
+            await context.reply(result, mention_author=True)
+            return
 
 
 bot.run(BOT_TOKEN)
